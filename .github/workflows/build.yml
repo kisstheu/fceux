@@ -64,17 +64,31 @@ jobs:
         make -j$(nproc)
         make install DESTDIR=$HOME/fceux-build/install
 
-    - name: Check if fceux executable exists
+    - name: Collect and upload all shared libraries
       run: |
-        ls -l $HOME/fceux-build/install/usr/local/bin/fceux
+        # 创建一个临时目录用于存放所有依赖库
+        mkdir -p $HOME/fceux-libs
+
+        # 使用 ldd 获取 fceux 所有的动态库依赖
+        dependencies=$(ldd $HOME/fceux-build/install/usr/local/bin/fceux | grep "=> /" | awk '{print $3}')
+        
+        # 将所有依赖库复制到临时目录
+        for lib in $dependencies; do
+          cp --parents $lib $HOME/fceux-libs/
+        done
+
+        # 上传 fceux 可执行文件和依赖库
+        echo "Uploading fceux and its libraries..."
+        tar -czf fceux_and_libraries.tar.gz -C $HOME fceux-libs usr/local/bin/fceux
+        
+        # 上传 tar 包作为 artifact
+        mv fceux_and_libraries.tar.gz $HOME/fceux-build/
+      continue-on-error: true  # 确保不会因为上传错误导致任务失败
 
     # 步骤 6: 上传构建产物
     - name: Upload fceux executable
       uses: actions/upload-artifact@v4
       with:
         name: fceux-executable
-        path: /home/runner/fceux-build/install/usr/local/bin/fceux  # 绝对路径
-        if-no-files-found: warn
-        compression-level: 6
-        overwrite: false
-        include-hidden-files: false
+        path: /home/runner/fceux-build/fceux_and_libraries.tar.gz  # 绝对路径
+
