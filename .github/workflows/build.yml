@@ -10,36 +10,62 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-latest  # 使用 GitHub 提供的最新 Ubuntu 环境
+
     steps:
-      # 步骤 1: 检出代码
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    # 步骤 1: 检出代码
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # 步骤 2: 设置开发环境
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential perl git
-          sudo apt-get install -y qtbase5-dev qtchooser qtbase5-dev-tools qt5-qmake
-          sudo apt-get install -y libsdl2-dev
+    # 步骤 2: 缓存 apt 包依赖
+    - name: Cache apt dependencies
+      uses: actions/cache@v2
+      with:
+        path: /tmp/apt-cache
+        key: ${{ runner.os }}-apt-${{ hashFiles('**/apt/apt.conf.d/*', '**/apt/sources.list.d/*', '**/apt/apt.conf') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-
 
-      # 步骤 3: 创建构建目录并运行 CMake
-      - name: Build project
-        run: |
-          mkdir -p $HOME/fceux-build
-          cd $HOME/fceux-build
-          mkdir buildQT
-          cd buildQT
-          cmake $GITHUB_WORKSPACE
-          make -j$(nproc)
-          make install DESTDIR=$HOME/fceux-build/install
+    # 步骤 3: 安装依赖
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential perl git
+        sudo apt-get install -y lua5.1-dev
+        sudo apt-get install -y libsdl2-dev
+        sudo apt-get install -y libminizip-dev  # 安装 minizip 库
+        sudo apt-get install -y libarchive-dev
+        sudo apt-get install -y qtbase5-dev qtchooser qtbase5-dev-tools qt5-qmake  # 安装 Qt 5
+        sudo apt-get install -y qt5-qml-module-qtquick-controls2 qt5-qml-module-qtquick-controls qtdeclarative5-dev  # 安装 Qt5Qml 和 Qt5UiTools 相关模块
+        sudo apt-get install -y libx264-dev libx265-dev
+        sudo apt-get install -y libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev
+        sudo apt-get install -y cppcheck
 
-      # 步骤 4: 打包可执行文件为 artifact
-      - name: Create artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: fceux-executable
-          path: $HOME/fceux-build/install/usr/bin/fceux
+    # 步骤 4: 缓存 CMake 构建目录
+    - name: Cache CMake build directory
+      uses: actions/cache@v2
+      with:
+        path: |
+          $HOME/fceux-build
+          $HOME/fceux-build/buildQT
+        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-build-
 
+    # 步骤 5: 创建构建目录并运行 CMake
+    - name: Build project
+      run: |
+        mkdir -p $HOME/fceux-build
+        cd $HOME/fceux-build
+        mkdir buildQT
+        cd buildQT
+        cmake $GITHUB_WORKSPACE  # 指向源代码目录
+        make -j$(nproc)
+        make install DESTDIR=$HOME/fceux-build/install
+
+    # 步骤 6: 打包可执行文件为 artifact
+    - name: Create artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: fceux-executable
+        path: $HOME/fceux-build/install/usr/bin/fceux
