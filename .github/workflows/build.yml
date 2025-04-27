@@ -69,4 +69,8 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: fceux-executable
-        path: $HOME/fceux-build/install/usr/local/bin/fceux  # 确保路径正确
+        path: ${{ runner.home }}/fceux-build/install/usr/local/bin/fceux
+        if-no-files-found: warn
+        compression-level: 6
+        overwrite: false
+        include-hidden-files: false
