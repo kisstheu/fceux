@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # 使用 GitHub 提供的最新 Ubuntu 环境
+    runs-on: ubuntu-22.04  # 使用 GitHub 提供的最新 Ubuntu 环境
 
     steps:
     # 步骤 1: 检出代码
@@ -26,22 +26,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-apt-
 
-    - name: Install glibc 2.36
-      run: |
-        # 下载并解压 glibc 2.36
-        wget http://ftp.gnu.org/gnu/libc/glibc-2.36.tar.gz
-        tar -xvzf glibc-2.36.tar.gz
-        cd glibc-2.36
-        mkdir build
-        cd build
-        # 配置并编译 glibc 2.36
-        ../configure --prefix=/opt/glibc-2.36
-        make -j$(nproc)
-        make install
-
-    - name: Set glibc 2.36 path
-      run: |
-        echo "/opt/glibc-2.36/lib" >> $GITHUB_ENV  # 设置 glibc 路径
+    
 
     # 步骤 3: 安装依赖
     - name: Install dependencies
