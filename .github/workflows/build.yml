@@ -35,11 +35,12 @@ jobs:
         sudo apt-get install -y libsdl2-dev
         sudo apt-get install -y libminizip-dev  # 安装 minizip 库
         sudo apt-get install -y libarchive-dev
-        sudo apt-get install -y qtbase5-dev qtchooser qtbase5-dev-tools qt5-qmake  # 安装 Qt 5
-        sudo apt-get install -y qt5-qml-module-qtquick-controls2 qt5-qml-module-qtquick-controls qtdeclarative5-dev  # 安装 Qt5Qml 和 Qt5UiTools 相关模块
+        sudo apt-get install -y qtbase5-dev qtchooser qtbase5-dev-tools qt5-qmake  # 安装 Qt 5 基础包
+        sudo apt-get install -y qtdeclarative5-dev  # 安装 Qt5 QML 模块
         sudo apt-get install -y libx264-dev libx265-dev
         sudo apt-get install -y libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev
         sudo apt-get install -y cppcheck
+
 
     # 步骤 4: 缓存 CMake 构建目录
     - name: Cache CMake build directory
