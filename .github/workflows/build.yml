@@ -69,4 +69,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: fceux-executable
-        path: $HOME/fceux-build/install/usr/bin/fceux
+        path: $HOME/fceux-build/install/usr/local/bin/fceux  # 确保路径正确
