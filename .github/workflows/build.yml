@@ -79,7 +79,7 @@ jobs:
 
         # 上传 fceux 可执行文件和依赖库
         echo "Uploading fceux and its libraries..."
-        tar -czf fceux_and_libraries.tar.gz -C /home/runner fceux-libs usr/local/bin/fceux
+        tar -czf fceux_and_libraries.tar.gz -C /home/runner fceux-libs /home/runner/fceux-build/install/usr/local/bin/fceux
         
         # 上传 tar 包作为 artifact
         mv fceux_and_libraries.tar.gz /home/runner/fceux-build/
