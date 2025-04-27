@@ -65,8 +65,8 @@ jobs:
         make install DESTDIR=$HOME/fceux-build/install
 
     - name: Check if fceux executable exists
-          run: |
-            ls -l $HOME/fceux-build/install/usr/local/bin/fceux
+      run: |
+        ls -l $HOME/fceux-build/install/usr/local/bin/fceux
 
     # 步骤 6: 上传构建产物
     - name: Upload fceux executable
