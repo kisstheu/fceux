@@ -19,7 +19,7 @@ jobs:
 
     # 步骤 2: 缓存 apt 包依赖
     - name: Cache apt dependencies
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: /tmp/apt-cache
         key: ${{ runner.os }}-apt-${{ hashFiles('**/apt/apt.conf.d/*', '**/apt/sources.list.d/*', '**/apt/apt.conf') }}
