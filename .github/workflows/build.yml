@@ -3,53 +3,43 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - master  # 在 main 分支有更新时触发构建
+      - master  # 在 master 分支有更新时触发构建
   pull_request:
     branches:
-      - main  # 在 PR 合并到 main 分支时触发构建
+      - master  # 在 PR 合并到 master 分支时触发构建
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # 使用 GitHub 提供的最新 Ubuntu 环境
-
+    runs-on: ubuntu-latest
+    
     steps:
-    # 步骤 1: 检出代码
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      # 步骤 1: 检出代码
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    # 步骤 2: 设置开发环境
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential perl git
-        sudo apt-get install -y lua5.1-dev
-        sudo apt-get install -y libsdl2-dev
-        sudo apt-get install -y libminizip-dev
-        sudo apt-get install -y libarchive-dev
-        sudo apt-get install -y qtbase5-dev qtchooser qtbase5-dev-tools qt5-qmake
-        sudo apt-get install -y libx264-dev libx265-dev
-        sudo apt-get install -y libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev
-        sudo apt-get install -y cppcheck
+      # 步骤 2: 设置开发环境
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential perl git
+          sudo apt-get install -y qtbase5-dev qtchooser qtbase5-dev-tools qt5-qmake
+          sudo apt-get install -y libsdl2-dev
 
-    # 步骤 3: 编译项目
-    - name: Build project
-      run: |
-        mkdir -p $HOME/fceux-build
-        cd $HOME/fceux-build
-        mkdir buildQT
-        cd buildQT
-        cmake \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=/usr \
-          -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-          ..
-        make -j$(nproc)
-        make install DESTDIR=$HOME/fceux-build/install
+      # 步骤 3: 创建构建目录并运行 CMake
+      - name: Build project
+        run: |
+          mkdir -p $HOME/fceux-build
+          cd $HOME/fceux-build
+          mkdir buildQT
+          cd buildQT
+          cmake $GITHUB_WORKSPACE
+          make -j$(nproc)
+          make install DESTDIR=$HOME/fceux-build/install
 
-    # 步骤 4: 打包可执行文件为 artifact
-    - name: Create artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: fceux-executable
-        path: $HOME/fceux-build/install/usr/bin/fceux
+      # 步骤 4: 打包可执行文件为 artifact
+      - name: Create artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fceux-executable
+          path: $HOME/fceux-build/install/usr/bin/fceux
 
