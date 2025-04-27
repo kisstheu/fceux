@@ -64,12 +64,16 @@ jobs:
         make -j$(nproc)
         make install DESTDIR=$HOME/fceux-build/install
 
-    # 步骤 6: 打包可执行文件为 artifact
-    - name: Create artifact
+    - name: Check if fceux executable exists
+          run: |
+            ls -l $HOME/fceux-build/install/usr/local/bin/fceux
+
+    # 步骤 6: 上传构建产物
+    - name: Upload fceux executable
       uses: actions/upload-artifact@v4
       with:
         name: fceux-executable
-        path: ${{ runner.home }}/fceux-build/install/usr/local/bin/fceux
+        path: $HOME/fceux-build/install/usr/local/bin/fceux  # 确保路径正确
         if-no-files-found: warn
         compression-level: 6
         overwrite: false
